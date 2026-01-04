@@ -29,16 +29,16 @@ kids:
       name: Sam
       email: ""
       phone-number: ""
-      fcm-token: ""
+      ntfy-topic: ""
     TWO:
       name: Riley
       email: ""
       phone-number: ""
-      fcm-token: ""
+      ntfy-topic: ""
 
-firebase:
-  enabled: ${FIREBASE_ENABLED:false}
-  service-account-path: ${FIREBASE_CREDENTIALS_PATH:}
+ntfy:
+  base-url: ${NTFY_BASE_URL:https://ntfy.sh}
+  access-token: ${NTFY_ACCESS_TOKEN:}
 
 chore:
   notifications:

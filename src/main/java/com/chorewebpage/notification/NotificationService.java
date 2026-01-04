@@ -1,19 +1,19 @@
 package com.chorewebpage.notification;
 
 import com.chorewebpage.config.KidDirectoryProperties;
+import com.chorewebpage.config.NtfyProperties;
 import com.chorewebpage.model.Chore;
 import com.chorewebpage.model.Kid;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.RestClient;
 
 @Service
 public class NotificationService {
@@ -23,15 +23,18 @@ public class NotificationService {
 
     private final JavaMailSender mailSender;
     private final KidDirectoryProperties kidDirectoryProperties;
-    private final FirebaseMessaging firebaseMessaging;
+    private final RestClient ntfyRestClient;
+    private final NtfyProperties ntfyProperties;
 
     public NotificationService(
             JavaMailSender mailSender,
             KidDirectoryProperties kidDirectoryProperties,
-            @Nullable FirebaseMessaging firebaseMessaging) {
+            RestClient ntfyRestClient,
+            NtfyProperties ntfyProperties) {
         this.mailSender = mailSender;
         this.kidDirectoryProperties = kidDirectoryProperties;
-        this.firebaseMessaging = firebaseMessaging;
+        this.ntfyRestClient = ntfyRestClient;
+        this.ntfyProperties = ntfyProperties;
     }
 
     public void notifyChoreDue(Chore chore) {
@@ -48,7 +51,7 @@ public class NotificationService {
                 + ".";
 
         sendEmail(contact.getEmail(), "Chore reminder: " + chore.getName(), messageBody);
-        sendPush(contact.getFcmToken(), chore.getName(), messageBody);
+        sendPush(contact.getNtfyTopic(), chore.getName(), messageBody);
     }
 
     private void sendEmail(String toAddress, String subject, String messageBody) {
@@ -67,19 +70,28 @@ public class NotificationService {
         }
     }
 
-    private void sendPush(String fcmToken, String title, String messageBody) {
-        if (firebaseMessaging == null || !StringUtils.hasText(fcmToken)) {
+    private void sendPush(String ntfyTopic, String title, String messageBody) {
+        if (!StringUtils.hasText(ntfyTopic)) {
             return;
         }
         try {
-            Message message = Message.builder()
-                    .setToken(fcmToken)
-                    .setNotification(Notification.builder().setTitle(title).setBody(messageBody).build())
-                    .build();
-            firebaseMessaging.send(message);
-            log.info("Sent Firebase push notification to token {}", fcmToken);
+            RestClient.RequestBodySpec request = ntfyRestClient
+                    .post()
+                    .uri("/{topic}", ntfyTopic)
+                    .contentType(MediaType.TEXT_PLAIN)
+                    .header("Title", title);
+
+            if (StringUtils.hasText(ntfyProperties.getAccessToken())) {
+                request = request.header(HttpHeaders.AUTHORIZATION, "Bearer " + ntfyProperties.getAccessToken());
+            }
+
+            request
+                    .body(messageBody)
+                    .retrieve()
+                    .toBodilessEntity();
+            log.info("Sent ntfy notification to topic {}", ntfyTopic);
         } catch (Exception ex) {
-            log.warn("Unable to send push notification to token {}: {}", fcmToken, ex.getMessage());
+            log.warn("Unable to send ntfy notification to topic {}: {}", ntfyTopic, ex.getMessage());
         }
     }
 }
