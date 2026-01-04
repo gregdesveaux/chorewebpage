@@ -4,6 +4,7 @@ public class KidContact {
     private String name;
     private String email;
     private String phoneNumber;
+    private String fcmToken;
 
     public String getName() {
         return name;
@@ -27,5 +28,13 @@ public class KidContact {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }

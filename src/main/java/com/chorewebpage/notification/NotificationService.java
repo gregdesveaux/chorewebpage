@@ -1,18 +1,17 @@
 package com.chorewebpage.notification;
 
 import com.chorewebpage.config.KidDirectoryProperties;
-import com.chorewebpage.config.SmsProperties;
 import com.chorewebpage.model.Chore;
 import com.chorewebpage.model.Kid;
-import com.twilio.Twilio;
-import com.twilio.exception.ApiException;
-import com.twilio.rest.api.v2010.account.Message;
-import com.twilio.type.PhoneNumber;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import java.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -24,15 +23,15 @@ public class NotificationService {
 
     private final JavaMailSender mailSender;
     private final KidDirectoryProperties kidDirectoryProperties;
-    private final SmsProperties smsProperties;
+    private final FirebaseMessaging firebaseMessaging;
 
     public NotificationService(
             JavaMailSender mailSender,
             KidDirectoryProperties kidDirectoryProperties,
-            SmsProperties smsProperties) {
+            @Nullable FirebaseMessaging firebaseMessaging) {
         this.mailSender = mailSender;
         this.kidDirectoryProperties = kidDirectoryProperties;
-        this.smsProperties = smsProperties;
+        this.firebaseMessaging = firebaseMessaging;
     }
 
     public void notifyChoreDue(Chore chore) {
@@ -49,7 +48,7 @@ public class NotificationService {
                 + ".";
 
         sendEmail(contact.getEmail(), "Chore reminder: " + chore.getName(), messageBody);
-        sendSms(contact.getPhoneNumber(), messageBody);
+        sendPush(contact.getFcmToken(), chore.getName(), messageBody);
     }
 
     private void sendEmail(String toAddress, String subject, String messageBody) {
@@ -68,23 +67,19 @@ public class NotificationService {
         }
     }
 
-    private void sendSms(String toNumber, String messageBody) {
-        if (!smsProperties.isEnabled() || !StringUtils.hasText(toNumber)) {
-            return;
-        }
-        if (!StringUtils.hasText(smsProperties.getAccountSid())
-                || !StringUtils.hasText(smsProperties.getAuthToken())
-                || !StringUtils.hasText(smsProperties.getFromNumber())) {
-            log.warn("SMS notification skipped because Twilio is not fully configured.");
+    private void sendPush(String fcmToken, String title, String messageBody) {
+        if (firebaseMessaging == null || !StringUtils.hasText(fcmToken)) {
             return;
         }
         try {
-            Twilio.init(smsProperties.getAccountSid(), smsProperties.getAuthToken());
-            Message.creator(new PhoneNumber(toNumber), new PhoneNumber(smsProperties.getFromNumber()), messageBody)
-                    .create();
-            log.info("Sent SMS notification to {}", toNumber);
-        } catch (ApiException ex) {
-            log.warn("Unable to send SMS to {}: {}", toNumber, ex.getMessage());
+            Message message = Message.builder()
+                    .setToken(fcmToken)
+                    .setNotification(Notification.builder().setTitle(title).setBody(messageBody).build())
+                    .build();
+            firebaseMessaging.send(message);
+            log.info("Sent Firebase push notification to token {}", fcmToken);
+        } catch (Exception ex) {
+            log.warn("Unable to send push notification to token {}: {}", fcmToken, ex.getMessage());
         }
     }
 }
