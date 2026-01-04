@@ -58,9 +58,13 @@ function renderChores(chores) {
         return;
     }
 
+    const now = new Date();
+
     chores.forEach((chore) => {
+        const isPastDue = chore.nextDueDate ? new Date(chore.nextDueDate) < now : false;
+
         const card = document.createElement('article');
-        card.className = 'card';
+        card.className = `card${isPastDue ? ' overdue' : ''}`;
 
         const name = document.createElement('h3');
         name.className = 'chore-name';
