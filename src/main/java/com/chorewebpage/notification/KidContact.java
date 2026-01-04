@@ -4,7 +4,7 @@ public class KidContact {
     private String name;
     private String email;
     private String phoneNumber;
-    private String fcmToken;
+    private String ntfyTopic;
 
     public String getName() {
         return name;
@@ -30,11 +30,11 @@ public class KidContact {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getFcmToken() {
-        return fcmToken;
+    public String getNtfyTopic() {
+        return ntfyTopic;
     }
 
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
+    public void setNtfyTopic(String ntfyTopic) {
+        this.ntfyTopic = ntfyTopic;
     }
 }
