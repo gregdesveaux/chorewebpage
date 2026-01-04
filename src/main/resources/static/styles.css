@@ -50,6 +50,11 @@ header p {
     gap: 12px;
 }
 
+.card.overdue {
+    background: #fee2e2;
+    border-color: #fecdd3;
+}
+
 .chore-name {
     font-weight: 700;
     font-size: 18px;
