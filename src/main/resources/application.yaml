@@ -26,12 +26,12 @@ spring:
 kids:
   contacts:
     ONE:
-      name: Sam
+      name: Aidan
       email: ""
       phone-number: ""
       ntfy-topic: ""
     TWO:
-      name: Riley
+      name: Ry
       email: ""
       phone-number: ""
       ntfy-topic: ""

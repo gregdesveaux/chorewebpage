@@ -25,10 +25,10 @@ public class DataLoader {
             }
             LocalDateTime now = LocalDateTime.now();
             List<Chore> chores = List.of(
-                    new Chore("Dishes", Frequency.DAILY, Kid.ONE, now.plusDays(1)),
-                    new Chore("Trash", Frequency.EVERY_THREE_DAYS, Kid.TWO, now.plusDays(3)),
-                    new Chore("Counters", Frequency.DAILY, Kid.TWO, now.plusDays(1)),
-                    new Chore("Sweep", Frequency.EVERY_THREE_DAYS, Kid.ONE, now.plusDays(3)));
+                    new Chore("Wash Dishes", Frequency.DAILY, Kid.ONE, now.plusDays(1)),
+                    new Chore("Recycling", Frequency.EVERY_THREE_DAYS, Kid.TWO, now.plusDays(3)),
+                    new Chore("Empty dishwasher", Frequency.EVERY_THREE_DAYS, Kid.TWO, now.plusDays(1)),
+                    new Chore("Clean cat litter", Frequency.EVERY_THREE_DAYS, Kid.ONE, now.plusDays(3)));
             repository.saveAll(chores);
             log.info("Seeded default chores: {}", chores.size());
         };
