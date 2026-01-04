@@ -29,16 +29,16 @@ kids:
       name: Sam
       email: ""
       phone-number: ""
+      fcm-token: ""
     TWO:
       name: Riley
       email: ""
       phone-number: ""
+      fcm-token: ""
 
-sms:
-  enabled: ${SMS_ENABLED:false}
-  account-sid: ${TWILIO_ACCOUNT_SID:}
-  auth-token: ${TWILIO_AUTH_TOKEN:}
-  from-number: ${TWILIO_FROM_NUMBER:}
+firebase:
+  enabled: ${FIREBASE_ENABLED:false}
+  service-account-path: ${FIREBASE_CREDENTIALS_PATH:}
 
 chore:
   notifications:

@@ -1,6 +1,6 @@
 # Shared chore board
 
-A lightweight Spring Boot app to let two kids take turns on chores. The UI lists chores, shows who is responsible next, and lets the current child mark chores done. When a chore is completed its next due date is calculated (daily or every 3 days) and the task rotates to the other child. The backend can send reminders by email and optionally SMS when a chore is due.
+A lightweight Spring Boot app to let two kids take turns on chores. The UI lists chores, shows who is responsible next, and lets the current child mark chores done. When a chore is completed its next due date is calculated (daily or every 3 days) and the task rotates to the other child. The backend can send reminders by email and optionally Firebase push notifications when a chore is due.
 
 ## Running locally
 
@@ -26,13 +26,15 @@ Key sections:
         name: Sam
         email: sam@example.com
         phone-number: +15551234567
+        fcm-token: token-from-client
       TWO:
         name: Riley
         email: riley@example.com
         phone-number: +15557654321
+        fcm-token: token-from-client
   ```
 - **Email** (`spring.mail.*`): Configure SMTP host, port, and credentials to deliver email reminders.
-- **SMS** (`sms.*`): Optional Twilio credentials. Set `sms.enabled=true` and supply `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, and a `TWILIO_FROM_NUMBER` to enable texts.
+- **Push notifications** (`firebase.*`): Enable Firebase Cloud Messaging by setting `firebase.enabled=true` and providing a service account JSON file path via `FIREBASE_CREDENTIALS_PATH`. The `fcm-token` per kid is used as the device target.
 - **Notification cadence** (`chore.notifications.interval-ms`): How often the scheduler checks for due chores (defaults to 15 minutes).
 
 The app ships with an H2 file database at `./data/chore-db` and seeds a few sample chores on first run.
