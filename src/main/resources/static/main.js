@@ -86,13 +86,7 @@ function renderChores(chores) {
         completeAssigned.textContent = `Mark done (${friendlyKid(chore.assignedTo, chore.assignedToName)})`;
         completeAssigned.onclick = () => markDone(chore.id, chore.assignedTo);
 
-        const completeOther = document.createElement('button');
-        completeOther.className = 'secondary';
-        const otherKid = chore.assignedTo === 'ONE' ? 'TWO' : 'ONE';
-        completeOther.textContent = `Mark done (${friendlyKid(otherKid, kidLabels[otherKid])})`;
-        completeOther.onclick = () => markDone(chore.id, otherKid);
-
-        actions.append(completeAssigned, completeOther);
+        actions.append(completeAssigned);
 
         card.append(name, meta, last, actions);
         choreGrid.appendChild(card);
